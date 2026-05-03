@@ -48,83 +48,45 @@ FULL_VOICE: [Tüm voiceover tek parça - Türkçe, ElevenLabs'e yapıştır]
 SCRIPT_END`;
 
 function parseScripts(text) {
-  const blocks = [];
-  const regex = /SCRIPT_START([\s\S]*?)SCRIPT_END/g;
-  let match;
+  const scripts = [];
+  const blocks = text.split('SCRIPT_START').slice(1);
 
-  while ((match = regex.exec(text)) !== null) {
-    const block = match[1].trim();
-    const script = parseBlock(block);
-    if (script) blocks.push(script);
-  }
+  for (const block of blocks) {
+    const end = block.indexOf('SCRIPT_END');
+    const content = end !== -1 ? block.substring(0, end) : block;
 
-  return blocks;
-}
+    const get = (key) => {
+      const regex = new RegExp(key + ':\\s*(.+?)(?=\\n[A-Z_]+:|$)', 's');
+      const match = content.match(regex);
+      return match ? match[1].trim() : '';
+    };
 
-function parseBlock(block) {
-  const lines = block.split('\n');
-  const script = {
-    framework: '', title: '', platform: '', duration: '',
-    hookMain: '', hookAlt: '', scenes: [],
-    ctaMain: '', ctaAlt: '', fullVoice: ''
-  };
-  let currentScene = null;
-  let fullVoiceMode = false;
-  let fullVoiceLines = [];
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (!line) continue;
-
-    if (fullVoiceMode) {
-      fullVoiceLines.push(line);
-      continue;
+    const scenes = [];
+    const sceneRegex = /SCENE_(\d+)\s*\nvisual:\s*([\s\S]*?)\nvoice:\s*(.*?)\nduration:\s*(.*?)(?=\nSCENE_|\nCTA_|\nHOOK_|\nFULL_VOICE|$)/g;
+    let sceneMatch;
+    while ((sceneMatch = sceneRegex.exec(content)) !== null) {
+      scenes.push({
+        visual: sceneMatch[2].trim(),
+        voice: sceneMatch[3].trim(),
+        duration: sceneMatch[4].trim()
+      });
     }
 
-    if (line.startsWith('framework:')) {
-      script.framework = line.replace('framework:', '').trim();
-    } else if (line.startsWith('title:')) {
-      script.title = line.replace('title:', '').trim();
-    } else if (line.startsWith('platform:')) {
-      script.platform = line.replace('platform:', '').trim();
-    } else if (line.startsWith('duration:') && !currentScene) {
-      script.duration = line.replace('duration:', '').trim();
-    } else if (/^SCENE_\d+/.test(line)) {
-      if (currentScene) script.scenes.push(currentScene);
-      currentScene = { visual: '', voice: '', duration: '' };
-    } else if (currentScene) {
-      if (line.startsWith('visual:')) {
-        currentScene.visual = line.replace('visual:', '').trim();
-      } else if (line.startsWith('voice:')) {
-        currentScene.voice = line.replace('voice:', '').trim();
-      } else if (line.startsWith('duration:')) {
-        currentScene.duration = line.replace('duration:', '').trim();
-      }
-    } else if (line.startsWith('HOOK_MAIN:')) {
-      if (currentScene) { script.scenes.push(currentScene); currentScene = null; }
-      script.hookMain = line.replace('HOOK_MAIN:', '').trim();
-    } else if (line.startsWith('HOOK_ALT:')) {
-      script.hookAlt = line.replace('HOOK_ALT:', '').trim();
-    } else if (line.startsWith('HOOK:')) {
-      if (currentScene) { script.scenes.push(currentScene); currentScene = null; }
-      if (!script.hookMain) script.hookMain = line.replace('HOOK:', '').trim();
-    } else if (line.startsWith('CTA_MAIN:')) {
-      script.ctaMain = line.replace('CTA_MAIN:', '').trim();
-    } else if (line.startsWith('CTA_ALT:')) {
-      script.ctaAlt = line.replace('CTA_ALT:', '').trim();
-    } else if (line.startsWith('CTA:')) {
-      if (!script.ctaMain) script.ctaMain = line.replace('CTA:', '').trim();
-    } else if (line.startsWith('FULL_VOICE:')) {
-      const inline = line.replace('FULL_VOICE:', '').trim();
-      if (inline) fullVoiceLines.push(inline);
-      fullVoiceMode = true;
-    }
+    scripts.push({
+      framework: get('framework'),
+      title: get('title'),
+      platform: get('platform'),
+      duration: get('duration'),
+      hookMain: get('HOOK_MAIN'),
+      hookAlt: get('HOOK_ALT'),
+      scenes,
+      ctaMain: get('CTA_MAIN'),
+      ctaAlt: get('CTA_ALT'),
+      fullVoice: get('FULL_VOICE')
+    });
   }
 
-  if (currentScene) script.scenes.push(currentScene);
-  if (fullVoiceLines.length) script.fullVoice = fullVoiceLines.join('\n').trim();
-
-  return script;
+  return scripts.length > 0 ? scripts : null;
 }
 
 export default async function handler(req, res) {
@@ -175,7 +137,7 @@ En büyük rakip: ${competitor || 'belirtilmedi'}
     return res.status(200).json({ raw: rawText, error: 'parse_failed' });
   }
 
-  if (scripts.length === 0) {
+  if (!scripts) {
     return res.status(200).json({ raw: rawText, scripts: [] });
   }
 
