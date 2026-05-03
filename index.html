@@ -261,15 +261,25 @@
 
       const json = await res.json();
 
-      if (json.error && !json.raw) {
+      if (json.error && !json.scripts) {
         loadingState.style.display = 'none';
         form.style.display = 'block';
-        alert('Hata: ' + json.error);
+        alert('Hata oluştu, lütfen tekrar deneyin.');
         return;
       }
 
-      // Store result and redirect (handles both parsed scripts and raw fallback)
-      sessionStorage.setItem('briefResult', JSON.stringify(json));
+      if (!json.scripts || json.scripts.length === 0) {
+        loadingState.style.display = 'none';
+        form.style.display = 'block';
+        alert('Script oluşturulamadı, lütfen tekrar deneyin.');
+        return;
+      }
+
+      try {
+        sessionStorage.setItem('briefResult', JSON.stringify(json));
+      } catch(e) {
+        sessionStorage.setItem('briefResult', JSON.stringify({ error: 'storage_failed' }));
+      }
       sessionStorage.setItem('briefInput', JSON.stringify(data));
       window.location.href = '/result.html';
 
