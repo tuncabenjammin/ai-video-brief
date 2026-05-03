@@ -1,38 +1,50 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-const SYSTEM_PROMPT = `Sen AI video script yazarısın. Türk markaları için TikTok/Reels formatında kısa, viral video scriptleri yazıyorsun. SADECE 1 script üret.
+const SYSTEM_PROMPT = `Sen dünyaca kanıtlanmış viral video framework'lerini kullanan uzman bir AI video script yazarısın. Türk markaları için TikTok/Reels formatında yüksek performanslı scriptler yazıyorsun.
 
-KURALLAR:
-- Tam olarak 4 sahne
-- Görsel promptlar İngilizce, kısa (max 15 kelime)
-- Voiceover Türkçe, konuşma dili (max 8 kelime per sahne)
-- Hook ikinci şahıs, soru veya şok
-- Toplam voiceover max 30 kelime
+ÖNEMLİ: Marka hakkında verilen bilgileri AYNEN kullan. Markanın ne olduğunu, ne sattığını, kime sattığını tam olarak anla. Yanlış kategori veya sektörde script yazma.
 
-ÇIKTI FORMATI (kesinlikle bunu kullan):
+FRAMEWORK SEÇİMİ (amaca göre otomatik seç):
+- Satış artırmak → Hook → Problem → Agitation → Solution → CTA
+- Marka bilinirliği → Hook → Story → Offer → CTA
+- Sosyal kanıt → Hook → Social Proof → Result → CTA
+- Reklam → Hook → Curiosity Gap → Reveal → CTA
+
+ALTIN KURALLAR:
+- Hook: İlk 3 saniye. İkinci şahıs. Soru veya şok cümlesi. "Sen" ile başla.
+- Her sahne: 3-4 saniye, tek bir güçlü görsel fikir
+- Voiceover: Kısa, konuşma dili, noktalama ile nefes ver
+- Görsel promptlar: İNGİLİZCE, detaylı (lighting + camera angle + mood + subject + action + brand colors)
+- Marka renklerini görsel promptlara dahil et
+- Rakip baskısını mutlaka bir sahnede kullan
+
+ÇIKTI FORMATI:
 SCRIPT_START
-title: [başlık]
+framework: [seçilen framework adı]
+title: [çarpıcı başlık]
 platform: TikTok/Reels
-duration: 15-20sn
+duration: 20-30sn
+HOOK_MAIN: [Ana hook - Türkçe, max 10 kelime]
+HOOK_ALT: [Alternatif hook - Türkçe, farklı açıdan, max 10 kelime]
 SCENE_1
-visual: [English, max 15 words]
-voice: [Türkçe, max 8 kelime]
+visual: [İngilizce, detaylı: lighting, camera, mood, subject, action, brand colors - min 20 kelime]
+voice: [Türkçe, max 10 kelime, noktalama ile ritim ver]
 duration: 3s
 SCENE_2
-visual: [English, max 15 words]
-voice: [Türkçe, max 8 kelime]
+visual: [İngilizce, detaylı - min 20 kelime]
+voice: [Türkçe, max 10 kelime]
 duration: 3s
 SCENE_3
-visual: [English, max 15 words]
-voice: [Türkçe, max 8 kelime]
+visual: [İngilizce, detaylı - min 20 kelime]
+voice: [Türkçe, max 10 kelime]
 duration: 3s
 SCENE_4
-visual: [English, max 15 words]
-voice: [Türkçe, max 8 kelime]
+visual: [İngilizce, detaylı - min 20 kelime]
+voice: [Türkçe, max 10 kelime]
 duration: 3s
-HOOK: [Türkçe, 1 kısa cümle]
-CTA: [Türkçe, 1 kısa cümle]
-FULL_VOICE: [Tüm voiceover tek parça, max 35 kelime]
+CTA_MAIN: [Ana CTA - Türkçe, aksiyona yönlendiren, max 8 kelime]
+CTA_ALT: [Alternatif CTA - Türkçe, farklı açı, max 8 kelime]
+FULL_VOICE: [Tüm voiceover tek parça - Türkçe, ElevenLabs'e yapıştır]
 SCRIPT_END`;
 
 function parseScripts(text) {
@@ -51,7 +63,11 @@ function parseScripts(text) {
 
 function parseBlock(block) {
   const lines = block.split('\n');
-  const script = { title: '', platform: '', duration: '', scenes: [], hook: '', cta: '', fullVoice: '' };
+  const script = {
+    framework: '', title: '', platform: '', duration: '',
+    hookMain: '', hookAlt: '', scenes: [],
+    ctaMain: '', ctaAlt: '', fullVoice: ''
+  };
   let currentScene = null;
   let fullVoiceMode = false;
   let fullVoiceLines = [];
@@ -61,12 +77,13 @@ function parseBlock(block) {
     if (!line) continue;
 
     if (fullVoiceMode) {
-      // Collect remaining lines as full voice
       fullVoiceLines.push(line);
       continue;
     }
 
-    if (line.startsWith('title:')) {
+    if (line.startsWith('framework:')) {
+      script.framework = line.replace('framework:', '').trim();
+    } else if (line.startsWith('title:')) {
       script.title = line.replace('title:', '').trim();
     } else if (line.startsWith('platform:')) {
       script.platform = line.replace('platform:', '').trim();
@@ -83,11 +100,20 @@ function parseBlock(block) {
       } else if (line.startsWith('duration:')) {
         currentScene.duration = line.replace('duration:', '').trim();
       }
+    } else if (line.startsWith('HOOK_MAIN:')) {
+      if (currentScene) { script.scenes.push(currentScene); currentScene = null; }
+      script.hookMain = line.replace('HOOK_MAIN:', '').trim();
+    } else if (line.startsWith('HOOK_ALT:')) {
+      script.hookAlt = line.replace('HOOK_ALT:', '').trim();
     } else if (line.startsWith('HOOK:')) {
       if (currentScene) { script.scenes.push(currentScene); currentScene = null; }
-      script.hook = line.replace('HOOK:', '').trim();
+      if (!script.hookMain) script.hookMain = line.replace('HOOK:', '').trim();
+    } else if (line.startsWith('CTA_MAIN:')) {
+      script.ctaMain = line.replace('CTA_MAIN:', '').trim();
+    } else if (line.startsWith('CTA_ALT:')) {
+      script.ctaAlt = line.replace('CTA_ALT:', '').trim();
     } else if (line.startsWith('CTA:')) {
-      script.cta = line.replace('CTA:', '').trim();
+      if (!script.ctaMain) script.ctaMain = line.replace('CTA:', '').trim();
     } else if (line.startsWith('FULL_VOICE:')) {
       const inline = line.replace('FULL_VOICE:', '').trim();
       if (inline) fullVoiceLines.push(inline);
@@ -106,26 +132,19 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { brand, audience, goal, tone, exampleUrl } = req.body || {};
+  const { brand, audience, goal, tone, exampleUrl, colors, competitor } = req.body || {};
 
   if (!brand || !audience || !goal || !tone) {
     return res.status(400).json({ error: 'Eksik alan: brand, audience, goal ve tone zorunludur.' });
   }
 
-  const userMessage = `Aşağıdaki marka için 4 farklı AI video scripti yaz:
-
-Marka / Ürün: ${brand}
-Hedef Kitle: ${audience}
-Video Amacı: ${goal}
-Ton: ${tone}${exampleUrl ? `\nÖrnek Video: ${exampleUrl}` : ''}
-
-Lütfen tam olarak 4 script yaz:
-1. TikTok/Reels scripti (15-20 saniye, kısa, hook'lu, durdurucu)
-2. Instagram Stories scripti (20-30 saniye, duygusal, hikaye odaklı)
-3. YouTube/Reklam scripti (45-60 saniye, dönüşüm odaklı)
-4. UGC stili script (30-45 saniye, sanki gerçek kullanıcı anlatıyor gibi)
-
-Her script için SCRIPT_START...SCRIPT_END formatını kullan.`;
+  const userMessage = `Marka adı ve ne sattığı: ${brand}
+Marka renkleri: ${colors || 'belirtilmedi'}
+Hedef kitle: ${audience}
+Video amacı: ${goal}
+Ton: ${tone}
+En büyük rakip: ${competitor || 'belirtilmedi'}
+Örnek video: ${exampleUrl || 'belirtilmedi'}`;
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 

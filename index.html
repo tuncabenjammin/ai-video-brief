@@ -158,6 +158,14 @@
           <input type="text" id="audience" name="audience" placeholder="örn. 25-35 yaş arası, cilt sorunları olan kadınlar" required>
         </div>
         <div class="field">
+          <label for="colors">Marka renklerin</label>
+          <input type="text" id="colors" name="colors" placeholder="örn: kırmızı ve siyah, #E8196A ve #1B2B5E" required>
+        </div>
+        <div class="field">
+          <label for="competitor">En büyük rakibin</label>
+          <input type="text" id="competitor" name="competitor" placeholder="örn: Trendyol, rakip marka adı" required>
+        </div>
+        <div class="field">
           <label for="goal">Video amacı</label>
           <select id="goal" name="goal" required>
             <option value="" disabled selected>Seç</option>
@@ -211,6 +219,8 @@
     const data = {
       brand: document.getElementById('brand').value.trim(),
       audience: document.getElementById('audience').value.trim(),
+      colors: document.getElementById('colors').value.trim(),
+      competitor: document.getElementById('competitor').value.trim(),
       goal: document.getElementById('goal').value,
       tone: document.getElementById('tone').value,
       exampleUrl: document.getElementById('exampleUrl').value.trim()
