@@ -87,6 +87,10 @@ function esc(str) {
 }
 
 function renderScript(data) {
+  console.log('[renderScript] data:', JSON.stringify(data));
+  const scenes = data.scenes || data.Scenes || data.SCENES || [];
+  console.log('[renderScript] scenes count:', scenes.length);
+
   const container = document.getElementById('scriptContainer');
   const card = document.createElement('div');
   card.className = 'script-card';
@@ -114,7 +118,7 @@ function renderScript(data) {
     <div class="section-title">🎬 Sahneler</div>
   `;
 
-  (data.scenes || []).forEach((scene, i) => {
+  scenes.forEach((scene, i) => {
     html += `
       <div class="scene">
         <div class="scene-num">SAHNE ${i + 1} · ${esc(scene.duration || '3s')}</div>

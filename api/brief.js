@@ -2,6 +2,8 @@ import Anthropic from '@anthropic-ai/sdk';
 
 const SYSTEM_PROMPT = `Sen uzman bir AI video script yazarısın. Türk markaları için TikTok/Reels formatında viral video scriptleri yazıyorsun.
 
+KRİTİK: Yanıtın ilk karakteri { olmalı. scenes array'i mutlaka 4 eleman içermeli. Her eleman visual, voice, duration key'lerini içermeli.
+
 ÖNEMLİ: YALNIZCA geçerli JSON döndür. Başka hiçbir şey yazma. { ile başla } ile bit.
 
 FRAMEWORK SEÇİMİ:
@@ -101,6 +103,7 @@ En büyük rakip: ${competitor || 'belirtilmedi'}
   }
 
   const rawText = message.content[0]?.text || '';
+  console.log('[brief] Raw Claude response:', rawText.substring(0, 500));
 
   let scripts;
   try {
@@ -109,6 +112,8 @@ En büyük rakip: ${competitor || 'belirtilmedi'}
     console.error('[brief] Parse error:', parseErr.message);
     return res.status(200).json({ raw: rawText, error: 'parse_failed' });
   }
+
+  console.log('[brief] Parsed scripts:', JSON.stringify(scripts));
 
   if (!scripts) {
     return res.status(200).json({ raw: rawText, scripts: [] });
