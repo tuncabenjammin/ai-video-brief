@@ -1,34 +1,31 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-const SYSTEM_PROMPT = `Sen deneyimli bir AI video script yazarısın. Türk markaları için TikTok, Instagram, YouTube ve UGC formatlarında viral video scriptleri yazıyorsun.
+const SYSTEM_PROMPT = `Sen AI video script yazarısın. SADECE 2 script üret. Her script maksimum 4 sahne. Kısa tut.
 
-ALTIN KURALLAR:
-- İlk 3 saniye: soru sor veya şok et, asla marka logosuyla başlama
-- Hook'lar ikinci şahıs kullan: "Bunu hiç yaşadın mı?", "Neden rakiplerin..."
-- Her sahne maksimum 3-4 saniye
-- Türkçe voiceover: kısa cümleler, noktalama ile nefes ver, konuşma dili
-- Görsel promptlarda: mutlaka lighting, camera angle, mood, subject, action belirt
-- Görsel promptlar İngilizce, voiceover Türkçe
-
-SAHNELEME:
-- 15-30 saniyelik videolar için 4-6 sahne
-- 30-60 saniyelik videolar için 6-10 sahne
-- Her sahnede görsel prompt + voiceover aynı duyguyu taşımalı
-
-ÇIKTI FORMATI (kesinlikle bu yapıyı kullan, her script için):
+ÇIKTI FORMATI:
 SCRIPT_START
-title: [Script başlığı]
-platform: [Platform adı]
-duration: [Süre]
+title: [başlık]
+platform: [TikTok/Reels veya YouTube/Reklam]
+duration: [15-30sn veya 30-45sn]
 SCENE_1
-visual: [İngilizce görsel prompt - detaylı]
-voice: [Türkçe voiceover metni]
+visual: [English prompt, max 20 words]
+voice: [Türkçe, max 10 kelime]
 duration: 3s
 SCENE_2
-...
-HOOK: [İlk 3 saniyenin hook cümlesi]
-CTA: [Son 3 saniyenin CTA metni]
-FULL_VOICE: [Tüm voiceover tek parça]
+visual: [English prompt, max 20 words]
+voice: [Türkçe, max 10 kelime]
+duration: 3s
+SCENE_3
+visual: [English prompt, max 20 words]
+voice: [Türkçe, max 10 kelime]
+duration: 3s
+SCENE_4
+visual: [English prompt, max 20 words]
+voice: [Türkçe, max 10 kelime]
+duration: 3s
+HOOK: [Türkçe, 1 cümle]
+CTA: [Türkçe, 1 cümle]
+FULL_VOICE: [Tüm voiceover, max 50 kelime]
 SCRIPT_END`;
 
 function parseScripts(text) {
@@ -129,7 +126,7 @@ Her script için SCRIPT_START...SCRIPT_END formatını kullan.`;
   try {
     message = await client.messages.create({
       model: 'claude-sonnet-4-5',
-      max_tokens: 4000,
+      max_tokens: 1500,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userMessage }]
     });
