@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scriptlerin Hazır — Seekerz</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1e293b; line-height: 1.6; background: #f8fafc; }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+
+    /* HEADER */
+    header { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 20px 0; margin-bottom: 40px; }
+    .logo { font-size: 1.4rem; font-weight: 800; color: #1B2B5E; }
+    .logo span { color: #E8196A; }
+    .header-title { font-size: 1.1rem; color: #475569; margin-top: 4px; }
+
+    /* SCRIPT CARDS */
+    .script-card { background: #fff; border: 1.5px solid #e2e8f0; border-radius: 16px; padding: 32px; margin-bottom: 28px; }
+    .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .card-header h2 { font-size: 1.25rem; font-weight: 800; color: #1B2B5E; flex: 1; }
+    .platform-badge { background: #E8196A; color: #fff; font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; white-space: nowrap; }
+    .duration-badge { background: #F0EEFF; color: #7B5EA7; font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+
+    .hook-cta { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .hc-box { flex: 1; min-width: 200px; background: #f8fafc; border-radius: 10px; padding: 12px 14px; }
+    .hc-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #7B5EA7; margin-bottom: 4px; }
+    .hc-text { font-size: 0.9rem; color: #1e293b; font-weight: 600; }
+
+    .scenes { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+    .scene { background: #f8fafc; border-radius: 10px; padding: 14px 16px; }
+    .scene-label { font-size: 0.75rem; font-weight: 700; color: #475569; margin-bottom: 8px; }
+    .scene-row { margin-bottom: 6px; font-size: 0.9rem; }
+    .scene-row:last-child { margin-bottom: 0; }
+    .scene-icon { margin-right: 4px; }
+    .scene-row .tag { font-weight: 600; color: #1B2B5E; }
+    .scene-row .val { color: #475569; }
+
+    .copy-section { margin-top: 8px; }
+    .copy-scene-btn {
+      font-size: 0.78rem; padding: 5px 12px; background: #F0EEFF; color: #7B5EA7;
+      border: 1px solid #d8d0f5; border-radius: 6px; cursor: pointer; font-family: inherit;
+      font-weight: 600; transition: background 0.15s;
+    }
+    .copy-scene-btn:hover { background: #e2d9ff; }
+
+    .full-voice { background: #F0EEFF; border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
+    .full-voice-label { font-size: 0.75rem; font-weight: 700; color: #7B5EA7; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .full-voice-text { font-size: 0.9rem; color: #1e293b; white-space: pre-wrap; }
+
+    .btn-copy-all {
+      width: 100%; padding: 13px; background: #1B2B5E; color: #fff; border: none;
+      border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer;
+      font-family: inherit; transition: background 0.15s;
+    }
+    .btn-copy-all:hover { background: #162347; }
+    .btn-copy-all.copied { background: #16a34a; }
+
+    /* OTO */
+    .oto-section { background: #1B2B5E; color: #fff; border-radius: 20px; padding: 48px 40px; margin: 48px 0; }
+    .oto-section h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 32px; text-align: center; }
+    .oto-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+    .oto-col { background: rgba(255,255,255,0.07); border-radius: 12px; padding: 20px; }
+    .oto-col.highlight { background: rgba(232, 25, 106, 0.2); border: 1.5px solid #E8196A; }
+    .oto-col h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .oto-col p { font-size: 0.9rem; color: rgba(255,255,255,0.75); }
+    .oto-offer { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 28px; margin-bottom: 16px; text-align: center; }
+    .oto-tag { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #E8196A; margin-bottom: 8px; }
+    .oto-offer h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 16px; }
+    .oto-offer ul { list-style: none; margin-bottom: 20px; }
+    .oto-offer ul li { font-size: 0.9rem; color: rgba(255,255,255,0.85); padding: 4px 0; }
+    .oto-disclaimer { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-bottom: 24px; line-height: 1.5; }
+    .btn-oto {
+      display: block; width: 100%; padding: 16px; background: #E8196A; color: #fff;
+      border: none; border-radius: 10px; font-size: 1.1rem; font-weight: 700;
+      text-decoration: none; text-align: center; cursor: pointer; font-family: inherit;
+      transition: background 0.15s;
+    }
+    .btn-oto:hover { background: #c9135a; }
+    .oto-urgency { text-align: center; font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-top: 12px; }
+    .oto-skip { display: block; text-align: center; margin-top: 16px; font-size: 0.82rem; color: rgba(255,255,255,0.45); cursor: pointer; text-decoration: underline; }
+    .oto-skip:hover { color: rgba(255,255,255,0.7); }
+
+    /* RAW FALLBACK */
+    .raw-output { background: #fff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 24px; white-space: pre-wrap; font-size: 0.85rem; color: #475569; }
+
+    footer { border-top: 1px solid #e2e8f0; padding: 24px 0; text-align: center; margin-top: 40px; background: #fff; }
+    footer p { font-size: 0.8rem; color: #94a3b8; }
+
+    @media (max-width: 560px) {
+      .oto-cols { grid-template-columns: 1fr; }
+      .oto-section { padding: 32px 20px; }
+      .script-card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="logo">seeker<span>z</span></div>
+    <div class="header-title">Scriptlerin Hazır 🎬</div>
+  </div>
+</header>
+
+<div class="container">
+  <div id="scriptsContainer"></div>
+
+  <!-- OTO -->
+  <div class="oto-section">
+    <h2>Scriptlerin hazır. Şimdi ne yapacaksın?</h2>
+
+    <div class="oto-cols">
+      <div class="oto-col">
+        <h3>Kendin üret</h3>
+        <p>Runway'i öğren, Kling'i kur, ElevenLabs'i ayarla. Saatler harca, sonucu tahmin et.</p>
+      </div>
+      <div class="oto-col highlight">
+        <h3>Üreticiye ver</h3>
+        <p>Bu scripti bugün bir AI video üreticisine ver. Seekerz'daki üreticiler bu formatı biliyor.</p>
+      </div>
+    </div>
+
+    <div class="oto-offer">
+      <div class="oto-tag">Tek Seferlik Teklif</div>
+      <h3>Seekerz Başlangıç Paketi — 2.200 TL/ay</h3>
+      <ul>
+        <li>• AI video üreticisi topluluğuna erişim</li>
+        <li>• İstediğin zaman ilan aç, teklif al</li>
+        <li>• Üreticilerle birebir çalış</li>
+      </ul>
+      <p class="oto-disclaimer">⚠️ Bu ödeme yalnızca platform erişimi içindir. Üreticilerin hazırladığı videolar için marka tarafından belirlenen bütçe üzerinden ayrıca ödeme yapılır.</p>
+      <a href="https://seekerz.vercel.app/signup" class="btn-oto">Seekerz'a Katıl →</a>
+    </div>
+
+    <p class="oto-urgency">Sayfayı kapattığında bu teklif gidiyor.</p>
+    <span class="oto-skip" onclick="window.print()">Hayır teşekkürler, scriptlerimi indireyim</span>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <p>© 2025 Seekerz · ai-video-brief</p>
+  </div>
+</footer>
+
+<script>
+  function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function copyText(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = '✓ Kopyalandı';
+      btn.style.background = '#d1fae5';
+      btn.style.color = '#16a34a';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.background = '';
+        btn.style.color = '';
+      }, 1800);
+    });
+  }
+
+  function buildScriptText(script) {
+    let out = `${script.title} [${script.platform}] (${script.duration})\n`;
+    out += `\nHOOK: ${script.hook}\n\n`;
+    (script.scenes || []).forEach((s, i) => {
+      out += `--- Sahne ${i+1} (${s.duration || ''}) ---\n`;
+      out += `🎬 Görsel: ${s.visual}\n`;
+      out += `🎤 Voiceover: ${s.voice}\n\n`;
+    });
+    out += `CTA: ${script.cta}\n\n`;
+    out += `── TAM VOICEOVER ──\n${script.fullVoice}\n`;
+    return out;
+  }
+
+  function renderScript(script, idx) {
+    const scenes = (script.scenes || []).map((s, si) => {
+      const sceneText = `🎬 ${s.visual}\n🎤 ${s.voice}`;
+      return `
+        <div class="scene">
+          <div class="scene-label">Sahne ${si + 1} ${s.duration ? '· ' + s.duration : ''}</div>
+          <div class="scene-row"><span class="scene-icon">🎬</span><span class="tag">Görsel:</span> <span class="val">${escHtml(s.visual)}</span></div>
+          <div class="scene-row"><span class="scene-icon">🎤</span><span class="tag">Voiceover:</span> <span class="val">${escHtml(s.voice)}</span></div>
+          <div class="copy-section">
+            <button class="copy-scene-btn" onclick="copyText(${JSON.stringify(sceneText)}, this)">Sahneyi kopyala</button>
+          </div>
+        </div>`;
+    }).join('');
+
+    const fullText = buildScriptText(script);
+
+    return `
+      <div class="script-card">
+        <div class="card-header">
+          <h2>${escHtml(script.title)}</h2>
+          <span class="platform-badge">${escHtml(script.platform)}</span>
+          ${script.duration ? `<span class="duration-badge">⏱ ${escHtml(script.duration)}</span>` : ''}
+        </div>
+
+        <div class="hook-cta">
+          <div class="hc-box">
+            <div class="hc-label">⚡ Hook (ilk 3sn)</div>
+            <div class="hc-text">${escHtml(script.hook)}</div>
+          </div>
+          <div class="hc-box">
+            <div class="hc-label">🎯 CTA (son 3sn)</div>
+            <div class="hc-text">${escHtml(script.cta)}</div>
+          </div>
+        </div>
+
+        <div class="scenes">${scenes}</div>
+
+        <div class="full-voice">
+          <div class="full-voice-label">🎤 Tam Voiceover (ElevenLabs'e yapıştır)</div>
+          <div class="full-voice-text">${escHtml(script.fullVoice)}</div>
+        </div>
+
+        <button class="btn-copy-all" onclick="
+          copyText(${JSON.stringify(fullText)}, this);
+          this.textContent = '✓ Tüm script kopyalandı!';
+          this.classList.add('copied');
+          setTimeout(() => { this.textContent = 'Tüm scripti kopyala'; this.classList.remove('copied'); }, 2000);
+        ">Tüm scripti kopyala</button>
+      </div>`;
+  }
+
+  function renderRaw(rawText) {
+    return `
+      <div class="script-card">
+        <div class="card-header"><h2>Script Çıktısı</h2></div>
+        <div class="raw-output">${escHtml(rawText)}</div>
+        <button class="btn-copy-all" style="margin-top:16px" onclick="copyText(${JSON.stringify(rawText)}, this)">Tüm metni kopyala</button>
+      </div>`;
+  }
+
+  // Load data
+  const container = document.getElementById('scriptsContainer');
+  const raw = sessionStorage.getItem('briefResult');
+
+  if (!raw) {
+    container.innerHTML = '<div class="script-card"><p style="color:#475569">Sonuç bulunamadı. Lütfen <a href="/">ana sayfaya</a> dönün.</p></div>';
+  } else {
+    try {
+      const data = JSON.parse(raw);
+      if (data.scripts && data.scripts.length) {
+        container.innerHTML = data.scripts.map(renderScript).join('');
+      } else if (data.raw) {
+        container.innerHTML = renderRaw(data.raw);
+      } else {
+        container.innerHTML = renderRaw(JSON.stringify(data, null, 2));
+      }
+    } catch (e) {
+      container.innerHTML = renderRaw(raw);
+    }
+  }
+</script>
+
+</body>
+</html>
