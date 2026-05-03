@@ -53,10 +53,11 @@ JSON FORMATI:
 }`;
 
 function parseScripts(text) {
-  const firstBrace = text.indexOf('{');
-  const lastBrace = text.lastIndexOf('}');
+  const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
   if (firstBrace === -1 || lastBrace === -1) return null;
-  const jsonStr = text.substring(firstBrace, lastBrace + 1);
+  const jsonStr = cleaned.substring(firstBrace, lastBrace + 1);
   const parsed = JSON.parse(jsonStr);
   return [parsed];
 }
