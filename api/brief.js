@@ -1,92 +1,64 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-const SYSTEM_PROMPT = `Sen dünyaca kanıtlanmış viral video framework'lerini kullanan uzman bir AI video script yazarısın. Türk markaları için TikTok/Reels formatında yüksek performanslı scriptler yazıyorsun.
+const SYSTEM_PROMPT = `Sen uzman bir AI video script yazarısın. Türk markaları için TikTok/Reels formatında viral video scriptleri yazıyorsun.
 
-ÖNEMLİ: Marka hakkında verilen bilgileri AYNEN kullan. Markanın ne olduğunu, ne sattığını, kime sattığını tam olarak anla. Yanlış kategori veya sektörde script yazma.
+ÖNEMLİ: YALNIZCA geçerli JSON döndür. Başka hiçbir şey yazma. { ile başla } ile bit.
 
-FRAMEWORK SEÇİMİ (amaca göre otomatik seç):
+FRAMEWORK SEÇİMİ:
 - Satış artırmak → Hook → Problem → Agitation → Solution → CTA
 - Marka bilinirliği → Hook → Story → Offer → CTA
 - Sosyal kanıt → Hook → Social Proof → Result → CTA
 - Reklam → Hook → Curiosity Gap → Reveal → CTA
 
-ALTIN KURALLAR:
-- Hook: İlk 3 saniye. İkinci şahıs. Soru veya şok cümlesi. "Sen" ile başla.
-- Her sahne: 3-4 saniye, tek bir güçlü görsel fikir
-- Voiceover: Kısa, konuşma dili, noktalama ile nefes ver
-- Görsel promptlar: İNGİLİZCE, detaylı (lighting + camera angle + mood + subject + action + brand colors)
+KURALLAR:
+- Hook: ikinci şahıs, soru veya şok, "Sen" ile başla
+- Görsel promptlar: İNGİLİZCE, detaylı (lighting + camera angle + mood + subject + action + brand colors), min 20 kelime
+- Voiceover: Türkçe, konuşma dili, kısa cümleler
 - Marka renklerini görsel promptlara dahil et
-- Rakip baskısını mutlaka bir sahnede kullan
+- Rakip baskısını bir sahnede kullan
 
-ÇIKTI FORMATI:
-SCRIPT_START
-framework: [seçilen framework adı]
-title: [çarpıcı başlık]
-platform: TikTok/Reels
-duration: 20-30sn
-HOOK_MAIN: [Ana hook - Türkçe, max 10 kelime]
-HOOK_ALT: [Alternatif hook - Türkçe, farklı açıdan, max 10 kelime]
-SCENE_1
-visual: [İngilizce, detaylı: lighting, camera, mood, subject, action, brand colors - min 20 kelime]
-voice: [Türkçe, max 10 kelime, noktalama ile ritim ver]
-duration: 3s
-SCENE_2
-visual: [İngilizce, detaylı - min 20 kelime]
-voice: [Türkçe, max 10 kelime]
-duration: 3s
-SCENE_3
-visual: [İngilizce, detaylı - min 20 kelime]
-voice: [Türkçe, max 10 kelime]
-duration: 3s
-SCENE_4
-visual: [İngilizce, detaylı - min 20 kelime]
-voice: [Türkçe, max 10 kelime]
-duration: 3s
-CTA_MAIN: [Ana CTA - Türkçe, aksiyona yönlendiren, max 8 kelime]
-CTA_ALT: [Alternatif CTA - Türkçe, farklı açı, max 8 kelime]
-FULL_VOICE: [Tüm voiceover tek parça - Türkçe, ElevenLabs'e yapıştır]
-SCRIPT_END`;
+JSON FORMATI:
+{
+  "framework": "seçilen framework",
+  "title": "çarpıcı başlık",
+  "platform": "TikTok/Reels",
+  "duration": "20-30sn",
+  "hookMain": "Ana hook Türkçe max 10 kelime",
+  "hookAlt": "Alternatif hook Türkçe farklı açıdan max 10 kelime",
+  "scenes": [
+    {
+      "visual": "English detailed prompt min 20 words with lighting camera mood subject action brand colors",
+      "voice": "Türkçe voiceover max 10 kelime",
+      "duration": "3s"
+    },
+    {
+      "visual": "...",
+      "voice": "...",
+      "duration": "3s"
+    },
+    {
+      "visual": "...",
+      "voice": "...",
+      "duration": "3s"
+    },
+    {
+      "visual": "...",
+      "voice": "...",
+      "duration": "3s"
+    }
+  ],
+  "ctaMain": "Ana CTA Türkçe max 8 kelime",
+  "ctaAlt": "Alternatif CTA Türkçe farklı açı max 8 kelime",
+  "fullVoice": "Tüm voiceover tek parça Türkçe ElevenLabs için"
+}`;
 
 function parseScripts(text) {
-  const scripts = [];
-  const blocks = text.split('SCRIPT_START').slice(1);
-
-  for (const block of blocks) {
-    const end = block.indexOf('SCRIPT_END');
-    const content = end !== -1 ? block.substring(0, end) : block;
-
-    const get = (key) => {
-      const regex = new RegExp(key + ':\\s*(.+?)(?=\\n[A-Z_]+:|$)', 's');
-      const match = content.match(regex);
-      return match ? match[1].trim() : '';
-    };
-
-    const scenes = [];
-    const sceneRegex = /SCENE_(\d+)\s*\nvisual:\s*([\s\S]*?)\nvoice:\s*(.*?)\nduration:\s*(.*?)(?=\nSCENE_|\nCTA_|\nHOOK_|\nFULL_VOICE|$)/g;
-    let sceneMatch;
-    while ((sceneMatch = sceneRegex.exec(content)) !== null) {
-      scenes.push({
-        visual: sceneMatch[2].trim(),
-        voice: sceneMatch[3].trim(),
-        duration: sceneMatch[4].trim()
-      });
-    }
-
-    scripts.push({
-      framework: get('framework'),
-      title: get('title'),
-      platform: get('platform'),
-      duration: get('duration'),
-      hookMain: get('HOOK_MAIN'),
-      hookAlt: get('HOOK_ALT'),
-      scenes,
-      ctaMain: get('CTA_MAIN'),
-      ctaAlt: get('CTA_ALT'),
-      fullVoice: get('FULL_VOICE')
-    });
-  }
-
-  return scripts.length > 0 ? scripts : null;
+  const firstBrace = text.indexOf('{');
+  const lastBrace = text.lastIndexOf('}');
+  if (firstBrace === -1 || lastBrace === -1) return null;
+  const jsonStr = text.substring(firstBrace, lastBrace + 1);
+  const parsed = JSON.parse(jsonStr);
+  return [parsed];
 }
 
 export default async function handler(req, res) {
