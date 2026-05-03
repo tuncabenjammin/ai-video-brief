@@ -132,13 +132,15 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { brand, audience, goal, tone, exampleUrl, colors, competitor } = req.body || {};
+  const { brand, website, productUrl, audience, goal, tone, exampleUrl, colors, competitor } = req.body || {};
 
   if (!brand || !audience || !goal || !tone) {
     return res.status(400).json({ error: 'Eksik alan: brand, audience, goal ve tone zorunludur.' });
   }
 
   const userMessage = `Marka adı ve ne sattığı: ${brand}
+Markanın websitesi: ${website || 'girilmedi'}
+Öne çıkarılacak ürün/hizmet linki: ${productUrl || 'girilmedi'}
 Marka renkleri: ${colors || 'belirtilmedi'}
 Hedef kitle: ${audience}
 Video amacı: ${goal}

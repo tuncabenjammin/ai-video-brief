@@ -152,6 +152,10 @@
         <div class="field">
           <label for="brand">Marka adı ve ne sattığın</label>
           <input type="text" id="brand" name="brand" placeholder="örn. BeautyX — cilt bakım serumu" required>
+          <label style="margin-top:12px;display:block">Markanın website adresi <span style="color:#94a3b8;font-weight:400">(en az biri zorunlu)</span></label>
+          <input type="text" id="website" placeholder="örn: https://markaadi.com">
+          <label style="margin-top:12px;display:block">Öne çıkarmak istediğin ürün/hizmet linki <span style="color:#94a3b8;font-weight:400">(en az biri zorunlu)</span></label>
+          <input type="text" id="productUrl" placeholder="örn: https://markaadi.com/urun-adi">
         </div>
         <div class="field">
           <label for="audience">Hedef kitlen kim?</label>
@@ -216,8 +220,17 @@
     const submitBtn = document.getElementById('submitBtn');
     const loadingState = document.getElementById('loadingState');
 
+    const website = document.getElementById('website').value.trim();
+    const productUrl = document.getElementById('productUrl').value.trim();
+    if (!website && !productUrl) {
+      alert('Lütfen en az bir link girin: website veya ürün linki.');
+      return;
+    }
+
     const data = {
       brand: document.getElementById('brand').value.trim(),
+      website,
+      productUrl,
       audience: document.getElementById('audience').value.trim(),
       colors: document.getElementById('colors').value.trim(),
       competitor: document.getElementById('competitor').value.trim(),
