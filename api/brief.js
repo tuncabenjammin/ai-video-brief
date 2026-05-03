@@ -1,31 +1,38 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-const SYSTEM_PROMPT = `Sen AI video script yazarısın. SADECE 2 script üret. Her script maksimum 4 sahne. Kısa tut.
+const SYSTEM_PROMPT = `Sen AI video script yazarısın. Türk markaları için TikTok/Reels formatında kısa, viral video scriptleri yazıyorsun. SADECE 1 script üret.
 
-ÇIKTI FORMATI:
+KURALLAR:
+- Tam olarak 4 sahne
+- Görsel promptlar İngilizce, kısa (max 15 kelime)
+- Voiceover Türkçe, konuşma dili (max 8 kelime per sahne)
+- Hook ikinci şahıs, soru veya şok
+- Toplam voiceover max 30 kelime
+
+ÇIKTI FORMATI (kesinlikle bunu kullan):
 SCRIPT_START
 title: [başlık]
-platform: [TikTok/Reels veya YouTube/Reklam]
-duration: [15-30sn veya 30-45sn]
+platform: TikTok/Reels
+duration: 15-20sn
 SCENE_1
-visual: [English prompt, max 20 words]
-voice: [Türkçe, max 10 kelime]
+visual: [English, max 15 words]
+voice: [Türkçe, max 8 kelime]
 duration: 3s
 SCENE_2
-visual: [English prompt, max 20 words]
-voice: [Türkçe, max 10 kelime]
+visual: [English, max 15 words]
+voice: [Türkçe, max 8 kelime]
 duration: 3s
 SCENE_3
-visual: [English prompt, max 20 words]
-voice: [Türkçe, max 10 kelime]
+visual: [English, max 15 words]
+voice: [Türkçe, max 8 kelime]
 duration: 3s
 SCENE_4
-visual: [English prompt, max 20 words]
-voice: [Türkçe, max 10 kelime]
+visual: [English, max 15 words]
+voice: [Türkçe, max 8 kelime]
 duration: 3s
-HOOK: [Türkçe, 1 cümle]
-CTA: [Türkçe, 1 cümle]
-FULL_VOICE: [Tüm voiceover, max 50 kelime]
+HOOK: [Türkçe, 1 kısa cümle]
+CTA: [Türkçe, 1 kısa cümle]
+FULL_VOICE: [Tüm voiceover tek parça, max 35 kelime]
 SCRIPT_END`;
 
 function parseScripts(text) {
@@ -126,7 +133,7 @@ Her script için SCRIPT_START...SCRIPT_END formatını kullan.`;
   try {
     message = await client.messages.create({
       model: 'claude-sonnet-4-5',
-      max_tokens: 1500,
+      max_tokens: 800,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userMessage }]
     });
