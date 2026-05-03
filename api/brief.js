@@ -65,20 +65,36 @@ function parseScripts(text) {
   if (first === -1 || last === -1) return null;
   cleaned = cleaned.substring(first, last + 1);
 
-  // Most aggressive fix: replace ALL literal newlines and tabs with spaces
-  // then attempt parse
-  const oneLiner = cleaned.replace(/[\r\n\t]+/g, ' ');
-
-  try {
-    return [JSON.parse(oneLiner)];
-  } catch(e) {
-    // fallback: try original
-    try {
-      return [JSON.parse(cleaned)];
-    } catch(e2) {
-      return null;
+  // Nuclear sanitization: process char by char,
+  // replace newlines/tabs inside strings with space
+  let result = '';
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < cleaned.length; i++) {
+    const ch = cleaned[i];
+    if (escaped) {
+      result += ch;
+      escaped = false;
+      continue;
     }
+    if (ch === '\\') {
+      escaped = true;
+      result += ch;
+      continue;
+    }
+    if (ch === '"') {
+      inString = !inString;
+      result += ch;
+      continue;
+    }
+    if (inString && (ch === '\n' || ch === '\r' || ch === '\t')) {
+      result += ' ';
+      continue;
+    }
+    result += ch;
   }
+
+  return [JSON.parse(result)];
 }
 
 export default async function handler(req, res) {
