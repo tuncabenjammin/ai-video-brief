@@ -122,5 +122,7 @@ Ton: ${tone}
     return res.status(200).json({ raw: rawText, scripts: [] });
   }
 
+  scripts = JSON.parse(JSON.stringify(scripts));
+
   return res.status(200).json({ scripts });
 }

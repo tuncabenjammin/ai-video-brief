@@ -165,49 +165,43 @@ function renderScript(data) {
   container.appendChild(card);
 }
 
-const raw = sessionStorage.getItem('briefResult');
-if (!raw) {
-  document.getElementById('scriptContainer').innerHTML = '<div class="script-card"><p>Sonuç bulunamadı.</p></div>';
-} else {
-  try {
-    const data = JSON.parse(raw);
+try {
+  let stored = sessionStorage.getItem('briefResult');
+  if (!stored) throw new Error('no data');
 
-    // data.scripts array varsa
-    if (data.scripts && data.scripts.length > 0) {
-      data.scripts.forEach(renderScript);
-    }
-    // data doğrudan script objesi ise
-    else if (data.framework || data.title || data.scenes) {
-      renderScript(data);
-    }
-    // data.raw varsa — JSON parse dene
-    else if (data.raw) {
-      const cleaned = data.raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
-      const firstBrace = cleaned.indexOf('{');
-      const lastBrace = cleaned.lastIndexOf('}');
-      if (firstBrace !== -1 && lastBrace !== -1) {
-        const parsed = JSON.parse(cleaned.substring(firstBrace, lastBrace + 1));
-        renderScript(parsed);
-      } else {
-        document.getElementById('scriptContainer').innerHTML = '<div class="script-card"><pre style="white-space:pre-wrap;font-size:13px">' + data.raw + '</pre></div>';
-      }
-    } else {
-      document.getElementById('scriptContainer').innerHTML = '<div class="script-card"><pre style="white-space:pre-wrap;font-size:13px">' + JSON.stringify(data, null, 2) + '</pre></div>';
-    }
-  } catch(e) {
-    // sessionStorage'daki data zaten raw string olabilir
-    try {
-      const cleaned = raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
-      const firstBrace = cleaned.indexOf('{');
-      const lastBrace = cleaned.lastIndexOf('}');
-      if (firstBrace !== -1 && lastBrace !== -1) {
-        const parsed = JSON.parse(cleaned.substring(firstBrace, lastBrace + 1));
-        renderScript(parsed);
-      }
-    } catch(e2) {
-      document.getElementById('scriptContainer').innerHTML = '<div class="script-card"><p>Parse hatası: ' + e.message + '</p></div>';
+  let parsed = JSON.parse(stored);
+
+  // If it has a raw field, parse that
+  if (parsed.raw || parsed.error === 'parse_failed') {
+    const rawText = parsed.raw || '';
+    const cleaned = rawText
+      .replace(/```json\n?/g, '')
+      .replace(/```\n?/g, '')
+      .replace(/\r\n/g, '\n')
+      .trim();
+    const first = cleaned.indexOf('{');
+    const last = cleaned.lastIndexOf('}');
+    if (first !== -1 && last !== -1) {
+      parsed = JSON.parse(cleaned.substring(first, last + 1));
     }
   }
+
+  // If parsed has scripts array
+  if (parsed.scripts && parsed.scripts.length > 0) {
+    parsed.scripts.forEach(renderScript);
+  }
+  // If parsed IS the script directly
+  else if (parsed.scenes || parsed.hookMain || parsed.title) {
+    renderScript(parsed);
+  }
+  else {
+    throw new Error('no scenes found');
+  }
+
+} catch(e) {
+  console.error('Final parse error:', e.message);
+  document.getElementById('scriptContainer').innerHTML =
+    '<div class="script-card"><p style="color:#E8196A">Hata: ' + e.message + '</p></div>';
 }
 </script>
 </body>
