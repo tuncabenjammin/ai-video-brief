@@ -232,9 +232,14 @@
 
       const json = await res.json();
 
-      if (!res.ok) throw new Error(json.error || 'Bir hata oluştu');
+      if (json.error && !json.raw) {
+        loadingState.style.display = 'none';
+        form.style.display = 'block';
+        alert('Hata: ' + json.error);
+        return;
+      }
 
-      // Store result and redirect
+      // Store result and redirect (handles both parsed scripts and raw fallback)
       sessionStorage.setItem('briefResult', JSON.stringify(json));
       sessionStorage.setItem('briefInput', JSON.stringify(data));
       window.location.href = '/result.html';

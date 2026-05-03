@@ -125,25 +125,34 @@ Her script için SCRIPT_START...SCRIPT_END formatını kullan.`;
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+  let message;
   try {
-    const message = await client.messages.create({
+    message = await client.messages.create({
       model: 'claude-sonnet-4-5',
       max_tokens: 4000,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userMessage }]
     });
-
-    const rawText = message.content[0]?.text || '';
-    const scripts = parseScripts(rawText);
-
-    if (scripts.length === 0) {
-      return res.status(200).json({ raw: rawText, scripts: [] });
-    }
-
-    return res.status(200).json({ scripts });
-
   } catch (err) {
-    console.error('Anthropic API error:', err);
-    return res.status(500).json({ error: err.message || 'API hatası oluştu.' });
+    const status = err.status || 500;
+    const errText = err.message || 'API hatası oluştu.';
+    console.error('[brief] Anthropic error:', status, errText);
+    return res.status(status).json({ error: errText });
   }
+
+  const rawText = message.content[0]?.text || '';
+
+  let scripts;
+  try {
+    scripts = parseScripts(rawText);
+  } catch (parseErr) {
+    console.error('[brief] Parse error:', parseErr.message);
+    return res.status(200).json({ raw: rawText, error: 'parse_failed' });
+  }
+
+  if (scripts.length === 0) {
+    return res.status(200).json({ raw: rawText, scripts: [] });
+  }
+
+  return res.status(200).json({ scripts });
 }
