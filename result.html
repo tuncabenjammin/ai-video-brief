@@ -162,25 +162,48 @@ function renderScript(data) {
 }
 
 const raw = sessionStorage.getItem('briefResult');
-if (raw) {
+if (!raw) {
+  document.getElementById('scriptContainer').innerHTML = '<div class="script-card"><p>Sonuç bulunamadı.</p></div>';
+} else {
   try {
     const data = JSON.parse(raw);
+
+    // data.scripts array varsa
     if (data.scripts && data.scripts.length > 0) {
       data.scripts.forEach(renderScript);
-    } else if (data.raw) {
-      document.getElementById('scriptContainer').innerHTML =
-        '<div class="script-card"><pre style="white-space:pre-wrap;font-size:13px">' + esc(data.raw) + '</pre></div>';
+    }
+    // data doğrudan script objesi ise
+    else if (data.framework || data.title || data.scenes) {
+      renderScript(data);
+    }
+    // data.raw varsa — JSON parse dene
+    else if (data.raw) {
+      const cleaned = data.raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+      const firstBrace = cleaned.indexOf('{');
+      const lastBrace = cleaned.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1) {
+        const parsed = JSON.parse(cleaned.substring(firstBrace, lastBrace + 1));
+        renderScript(parsed);
+      } else {
+        document.getElementById('scriptContainer').innerHTML = '<div class="script-card"><pre style="white-space:pre-wrap;font-size:13px">' + data.raw + '</pre></div>';
+      }
     } else {
-      document.getElementById('scriptContainer').innerHTML =
-        '<div class="script-card"><p>Script bulunamadı. Lütfen tekrar deneyin.</p></div>';
+      document.getElementById('scriptContainer').innerHTML = '<div class="script-card"><pre style="white-space:pre-wrap;font-size:13px">' + JSON.stringify(data, null, 2) + '</pre></div>';
     }
   } catch(e) {
-    document.getElementById('scriptContainer').innerHTML =
-      '<div class="script-card"><p>Script yüklenemedi. Lütfen tekrar deneyin.</p></div>';
+    // sessionStorage'daki data zaten raw string olabilir
+    try {
+      const cleaned = raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+      const firstBrace = cleaned.indexOf('{');
+      const lastBrace = cleaned.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1) {
+        const parsed = JSON.parse(cleaned.substring(firstBrace, lastBrace + 1));
+        renderScript(parsed);
+      }
+    } catch(e2) {
+      document.getElementById('scriptContainer').innerHTML = '<div class="script-card"><p>Parse hatası: ' + e.message + '</p></div>';
+    }
   }
-} else {
-  document.getElementById('scriptContainer').innerHTML =
-    '<div class="script-card"><p>Sonuç bulunamadı. <a href="/">Ana sayfaya dön</a></p></div>';
 }
 </script>
 </body>
