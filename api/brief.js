@@ -135,5 +135,37 @@ Ton: ${tone}
 
   scripts = JSON.parse(JSON.stringify(scripts));
 
+  // Save lead to Supabase
+  try {
+    const script = scripts && scripts[0];
+    await fetch(`${process.env.SUPABASE_URL}/rest/v1/ai_video_brief_leads`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': process.env.SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        brand: req.body.brand || '',
+        website: req.body.website || '',
+        product_url: req.body.productUrl || '',
+        audience: req.body.audience || '',
+        colors: req.body.colors || '',
+        competitor: req.body.competitor || '',
+        goal: req.body.goal || '',
+        tone: req.body.tone || '',
+        script_title: script?.title || '',
+        script_framework: script?.framework || '',
+        hook_main: script?.hookMain || '',
+        full_voice: script?.fullVoice || ''
+      })
+    });
+    console.log('[brief] Lead saved to Supabase');
+  } catch (supabaseErr) {
+    console.error('[brief] Supabase error:', supabaseErr.message);
+    // Don't fail the request if Supabase save fails
+  }
+
   return res.status(200).json({ scripts });
 }
