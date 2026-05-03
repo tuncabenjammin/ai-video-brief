@@ -55,24 +55,30 @@ JSON FORMATI:
 }`;
 
 function parseScripts(text) {
-  // Remove markdown fences
-  let cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+  let cleaned = text
+    .replace(/```json\n?/g, '')
+    .replace(/```\n?/g, '')
+    .trim();
 
-  // Find JSON boundaries
   const first = cleaned.indexOf('{');
   const last = cleaned.lastIndexOf('}');
   if (first === -1 || last === -1) return null;
-
   cleaned = cleaned.substring(first, last + 1);
 
-  // Fix common JSON issues: replace actual newlines inside string values with \n
-  // This regex replaces literal newlines between quotes with escaped version
-  cleaned = cleaned.replace(/("(?:[^"\\]|\\.)*")/g, (match) => {
-    return match.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
-  });
+  // Most aggressive fix: replace ALL literal newlines and tabs with spaces
+  // then attempt parse
+  const oneLiner = cleaned.replace(/[\r\n\t]+/g, ' ');
 
-  const parsed = JSON.parse(cleaned);
-  return [parsed];
+  try {
+    return [JSON.parse(oneLiner)];
+  } catch(e) {
+    // fallback: try original
+    try {
+      return [JSON.parse(cleaned)];
+    } catch(e2) {
+      return null;
+    }
+  }
 }
 
 export default async function handler(req, res) {
