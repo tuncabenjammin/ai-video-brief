@@ -75,14 +75,17 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Eksik alan: brand, audience, goal ve tone zorunludur.' });
   }
 
-  const userMessage = `Marka adı ve ne sattığı: ${brand}
-Markanın websitesi: ${website || 'girilmedi'}
-Öne çıkarılacak ürün/hizmet linki: ${productUrl || 'girilmedi'}
-Marka renkleri: ${colors || 'belirtilmedi'}
+  const urlInfo = [];
+  if (website && website.trim()) urlInfo.push(`Markanın websitesi: ${website}`);
+  if (productUrl && productUrl.trim()) urlInfo.push(`Öne çıkarılacak ürün/hizmet linki: ${productUrl}`);
+
+  const userMessage = `Marka adı ve ne satar: ${brand}
+Markanın websitesi veya ürün linki: ${urlInfo.join(' | ') || 'girilmedi'}
+Marka renkleri: ${colors}
 Hedef kitle: ${audience}
+En büyük rakip: ${competitor}
 Video amacı: ${goal}
 Ton: ${tone}
-En büyük rakip: ${competitor || 'belirtilmedi'}
 Örnek video: ${exampleUrl || 'belirtilmedi'}`;
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
