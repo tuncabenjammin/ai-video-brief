@@ -55,12 +55,23 @@ JSON FORMATI:
 }`;
 
 function parseScripts(text) {
-  const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-  const firstBrace = cleaned.indexOf('{');
-  const lastBrace = cleaned.lastIndexOf('}');
-  if (firstBrace === -1 || lastBrace === -1) return null;
-  const jsonStr = cleaned.substring(firstBrace, lastBrace + 1);
-  const parsed = JSON.parse(jsonStr);
+  // Remove markdown fences
+  let cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+  // Find JSON boundaries
+  const first = cleaned.indexOf('{');
+  const last = cleaned.lastIndexOf('}');
+  if (first === -1 || last === -1) return null;
+
+  cleaned = cleaned.substring(first, last + 1);
+
+  // Fix common JSON issues: replace actual newlines inside string values with \n
+  // This regex replaces literal newlines between quotes with escaped version
+  cleaned = cleaned.replace(/("(?:[^"\\]|\\.)*")/g, (match) => {
+    return match.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+  });
+
+  const parsed = JSON.parse(cleaned);
   return [parsed];
 }
 
