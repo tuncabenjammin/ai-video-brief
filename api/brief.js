@@ -86,7 +86,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { brand, website, productUrl, audience, goal, tone, exampleUrl, colors, competitor } = req.body || {};
+  const { brand, website, productUrl, audience, goal, tone, exampleUrl, colors, competitor, discountCode } = req.body || {};
 
   if (!brand || !audience || !goal || !tone) {
     return res.status(400).json({ error: 'Eksik alan: brand, audience, goal ve tone zorunludur.' });
@@ -164,7 +164,8 @@ Ton: ${tone}
         script_title: script?.title || '',
         script_framework: script?.framework || '',
         hook_main: script?.hookMain || '',
-        full_voice: script?.fullVoice || ''
+        full_voice: script?.fullVoice || '',
+        discount_code: discountCode || ''
       })
     });
     console.log('[brief] Lead saved to Supabase');

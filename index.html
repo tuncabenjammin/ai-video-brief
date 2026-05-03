@@ -115,7 +115,10 @@
 <section class="insight">
   <div class="container">
     <h2>Sorun tool değil.</h2>
-    <p>Veo3 da, Kling de, Seedance de aynı şeyi yapıyor: ona ne söylersen onu üretiyor. Hook'suz prompt → sıradan video. Sahne yapısı olmayan brief → jenerik çıktı. Hangi aracı kullanırsan kullan — fark yaratan araç değil. Fark yaratan şey, aracın önüne koyduğun script.</p>
+    <p>Veo3 da, Kling de, Seedance de aynı şeyi yapıyor: ona ne söylersen onu üretiyor.</p>
+    <p style="margin-bottom:8px">⚡ Hook'suz prompt → sıradan video.</p>
+    <p>⚡ Sahne yapısı olmayan brief → jenerik çıktı.</p>
+    <p style="margin-top:16px">Hangi aracı kullanırsan kullan — fark yaratan araç değil. Fark yaratan şey, aracın önüne koyduğun script.</p>
   </div>
 </section>
 
@@ -192,6 +195,8 @@
         <div class="field">
           <label for="exampleUrl">Örnek video linki</label>
           <input type="url" id="exampleUrl" name="exampleUrl" placeholder="opsiyonel">
+          <label style="margin-top:12px;display:block">İndirim kodu <span style="color:#94a3b8;font-weight:400">(opsiyonel)</span></label>
+          <input type="text" id="discountCode" placeholder="varsa indirim kodunu gir">
         </div>
 
         <button type="submit" class="btn-submit" id="submitBtn">Scriptimi Üret → 225 TL</button>
@@ -227,6 +232,9 @@
       return;
     }
 
+    const discountCode = document.getElementById('discountCode').value.trim().toLowerCase();
+    const isFree = discountCode === 'script';
+
     const data = {
       brand: document.getElementById('brand').value.trim(),
       website,
@@ -236,7 +244,8 @@
       competitor: document.getElementById('competitor').value.trim(),
       goal: document.getElementById('goal').value,
       tone: document.getElementById('tone').value,
-      exampleUrl: document.getElementById('exampleUrl').value.trim()
+      exampleUrl: document.getElementById('exampleUrl').value.trim(),
+      discountCode
     };
 
     // Show loading
