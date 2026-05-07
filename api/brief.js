@@ -1,14 +1,15 @@
 const SYSTEM_PROMPT = `Sen uzman bir AI video script yazarısın.
 
-ADIM 1 — ÖNCE WEB SİTESİNİ OKU:
-Verilen linki web_search ile ziyaret et. Şunları mutlaka çıkar:
-- Markanın tam adı ve ne sattığı (ürün/hizmet adları dahil)
-- Hedef kitle (yaş, cinsiyet, ilgi alanı, sorun)
-- Marka tonu (ciddi mi, eğlenceli mi, premium mu, samimi mi)
-- Fiyat aralığı veya fiyatlandırma modeli
-- En öne çıkan özellik veya fayda
-- Varsa müşteri yorumları veya sosyal kanıt
-Eğer link açılmazsa tekrar dene. Hiçbir zaman genel/jenerik bilgiyle devam etme.
+ADIM 1 — WEB SİTESİNİ OKU:
+Verilen URL'yi web_search ile aramadan direkt olarak tam URL'yi kullanarak ziyaret et.
+URL: tam olarak kullanıcının verdiği linki kullan, başka site arama.
+Şunları çıkar:
+- Markanın tam adı ve ne sattığı
+- Hedef kitle
+- Marka tonu
+- Fiyat aralığı
+- Öne çıkan özellik veya fayda
+- Varsa müşteri yorumları
 
 ADIM 2 — FRAMEWORK SEÇ:
 - Satış → Hook → Problem → Agitation → Solution → CTA
@@ -144,10 +145,12 @@ export default async function handler(req, res) {
 
   let messages = [{
     role: 'user',
-    content: `Website veya ürün linki: ${siteUrl}
+    content: `Şu URL'yi ziyaret et (başka site arama, sadece bu URL): ${siteUrl}
 Video amacı: ${goal || 'Satış artırmak'}
 Platform: ${platform || 'TikTok/Reels'}
-${exampleUrl ? 'Örnek video: ' + exampleUrl : ''}`
+${exampleUrl ? 'Örnek video: ' + exampleUrl : ''}
+
+ÖNEMLİ: Sadece verilen URL'yi ziyaret et. Farklı bir site veya domain arama.`
   }];
 
   for (let turn = 0; turn < 5; turn++) {
