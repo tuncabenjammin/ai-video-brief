@@ -1,6 +1,6 @@
-import Anthropic from '@anthropic-ai/sdk';
+const SYSTEM_PROMPT = `ÖNCELİKLE verilen linki web_search ile ziyaret et ve markanın ürününü, hedef kitlesini, marka tonunu, renklerini ve fiyat bilgisini çıkar. Sonra bu bilgileri kullanarak script yaz.
 
-const SYSTEM_PROMPT = `Sen uzman bir AI video script yazarısın. Türk markaları için TikTok/Reels formatında viral video scriptleri yazıyorsun.
+Sen uzman bir AI video script yazarısın. Türk markaları için TikTok/Reels formatında viral video scriptleri yazıyorsun.
 
 KRİTİK: Yanıtın ilk karakteri { olmalı. scenes array'i mutlaka 4 eleman içermeli. Her eleman visual, voice, duration key'lerini içermeli.
 
@@ -102,93 +102,100 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { brand, website, productUrl, audience, colors, competitor, goal, tone, exampleUrl, discountCode, ...claudeBody } = req.body || {};
+  const { website, productUrl, goal, platform, exampleUrl, discountCode } = req.body || {};
+  const siteUrl = website || productUrl || '';
 
-  if (!brand || !audience || !goal || !tone) {
-    return res.status(400).json({ error: 'Eksik alan: brand, audience, goal ve tone zorunludur.' });
+  if (!siteUrl) {
+    return res.status(400).json({ error: 'Website veya ürün linki zorunludur.' });
   }
 
-  const urlInfo = [];
-  if (website && website.trim()) urlInfo.push(`Markanın websitesi: ${website}`);
-  if (productUrl && productUrl.trim()) urlInfo.push(`Öne çıkarılacak ürün/hizmet linki: ${productUrl}`);
+  let messages = [{
+    role: 'user',
+    content: `Website veya ürün linki: ${siteUrl}
+Video amacı: ${goal || 'Satış artırmak'}
+Platform: ${platform || 'TikTok/Reels'}
+${exampleUrl ? 'Örnek video: ' + exampleUrl : ''}`
+  }];
 
-  const userMessage = `Marka adı ve ne satar: ${brand}
-Markanın websitesi veya ürün linki: ${urlInfo.join(' | ') || 'girilmedi'}
-Marka renkleri: ${colors}
-Hedef kitle: ${audience}
-En büyük rakip: ${competitor}
-Video amacı: ${goal}
-Ton: ${tone}
-Örnek video: ${exampleUrl || 'belirtilmedi'}`;
-
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-  let message;
-  try {
-    message = await client.messages.create({
-      model: 'claude-sonnet-4-5',
-      max_tokens: 800,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: userMessage }]
-    });
-  } catch (err) {
-    const status = err.status || 500;
-    const errText = err.message || 'API hatası oluştu.';
-    console.error('[brief] Anthropic error:', status, errText);
-    return res.status(status).json({ error: errText });
-  }
-
-  const rawText = message.content[0]?.text || '';
-  console.log('[brief] Raw Claude response:', rawText.substring(0, 500));
-
-  let scripts;
-  try {
-    scripts = parseScripts(rawText);
-  } catch (parseErr) {
-    console.error('[brief] Parse error:', parseErr.message);
-    return res.status(200).json({ raw: rawText, error: 'parse_failed' });
-  }
-
-  console.log('[brief] Parsed scripts:', JSON.stringify(scripts));
-
-  if (!scripts) {
-    return res.status(200).json({ raw: rawText, scripts: [] });
-  }
-
-  scripts = JSON.parse(JSON.stringify(scripts));
-
-  // Save lead to Supabase
-  try {
-    const script = scripts && scripts[0];
-    await fetch(`${process.env.SUPABASE_URL}/rest/v1/ai_video_brief_leads`, {
+  for (let turn = 0; turn < 5; turn++) {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': process.env.SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
-        'Prefer': 'return=minimal'
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        brand: req.body.brand || '',
-        website: req.body.website || '',
-        product_url: req.body.productUrl || '',
-        audience: req.body.audience || '',
-        colors: req.body.colors || '',
-        competitor: req.body.competitor || '',
-        goal: req.body.goal || '',
-        tone: req.body.tone || '',
-        script_title: script?.title || '',
-        script_framework: script?.framework || '',
-        hook_main: script?.hookMain || '',
-        full_voice: script?.fullVoice || '',
-        discount_code: discountCode || ''
+        model: 'claude-sonnet-4-5',
+        max_tokens: 2000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        system: SYSTEM_PROMPT,
+        messages
       })
     });
-    console.log('[brief] Lead saved to Supabase');
-  } catch (supabaseErr) {
-    console.error('[brief] Supabase error:', supabaseErr.message);
-    // Don't fail the request if Supabase save fails
+
+    if (!response.ok) {
+      const err = await response.text();
+      return res.status(response.status).json({ error: err });
+    }
+
+    const data = await response.json();
+    console.log(`[brief] turn=${turn} stop_reason=${data.stop_reason}`);
+
+    if (data.stop_reason === 'end_turn') {
+      const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+      console.log('[brief] Raw Claude response:', text.substring(0, 500));
+
+      let scripts;
+      try {
+        scripts = parseScripts(text);
+      } catch (parseErr) {
+        console.error('[brief] Parse error:', parseErr.message);
+        return res.status(500).json({ error: 'parse_failed', raw: text });
+      }
+
+      console.log('[brief] Parsed scripts:', JSON.stringify(scripts));
+      if (!scripts) return res.status(500).json({ error: 'parse_failed', raw: text });
+
+      try {
+        await fetch(`${process.env.SUPABASE_URL}/rest/v1/ai_video_brief_leads`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': process.env.SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            website: siteUrl,
+            goal: goal || '',
+            platform: platform || '',
+            discount_code: discountCode || '',
+            script_title: scripts[0]?.title || '',
+            script_framework: scripts[0]?.framework || '',
+            hook_main: scripts[0]?.hookMain || '',
+            full_voice: scripts[0]?.fullVoice || ''
+          })
+        });
+        console.log('[brief] Lead saved to Supabase');
+      } catch(e) { console.error('[brief] Supabase:', e.message); }
+
+      return res.status(200).json({ scripts });
+    }
+
+    if (data.stop_reason === 'tool_use') {
+      messages = [...messages, { role: 'assistant', content: data.content }];
+      const toolResults = (data.content || [])
+        .filter(b => b.type === 'tool_use')
+        .map(b => ({ type: 'tool_result', tool_use_id: b.id, content: '' }));
+      if (toolResults.length > 0) {
+        messages = [...messages, { role: 'user', content: toolResults }];
+      }
+      continue;
+    }
+
+    return res.status(200).json({ error: 'unexpected stop', raw: JSON.stringify(data) });
   }
 
-  return res.status(200).json({ scripts });
+  return res.status(500).json({ error: 'max turns reached' });
 }
