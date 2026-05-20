@@ -89,6 +89,16 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
 
     <div id="briefForm">
       <div class="field">
+        <label>Adın</label>
+        <input type="text" id="userName" placeholder="Adın Soyadın" required>
+      </div>
+
+      <div class="field">
+        <label>Email adresin</label>
+        <input type="email" id="userEmail" placeholder="ornek@email.com" required>
+      </div>
+
+      <div class="field">
         <label>Website veya ürün sayfası linki</label>
         <input type="url" id="websiteUrl" placeholder="https://markaadi.com/urun" required>
       </div>
@@ -119,7 +129,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
       </div>
 
       <button class="submit-btn" id="submitBtn">Scriptimi Üret →</button>
-      <div class="submit-note">★ 225 TL · Anında erişim · 7 gün iade garantisi</div>
+      <div class="submit-note">★ Tamamen ücretsiz · Anında erişim</div>
       <div class="error-msg" id="errorMsg"></div>
     </div>
 
@@ -162,11 +172,15 @@ function showError(msg) {
 }
 
 document.getElementById('submitBtn').addEventListener('click', async () => {
+  const userName = document.getElementById('userName').value.trim();
+  const userEmail = document.getElementById('userEmail').value.trim();
   const websiteUrl = document.getElementById('websiteUrl').value.trim();
   const platform = document.getElementById('platform').value;
   const goal = document.getElementById('goal').value;
   const discountCode = document.getElementById('discountCode').value.trim();
 
+  if (!userName) { showError('Lütfen adınızı girin.'); return; }
+  if (!userEmail) { showError('Lütfen email adresinizi girin.'); return; }
   if (!websiteUrl) { showError('Lütfen bir link girin.'); return; }
 
   showLoading();
@@ -175,7 +189,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
     const res = await fetch('/api/brief', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ website: websiteUrl, platform, goal, discountCode })
+      body: JSON.stringify({ name: userName, email: userEmail, website: websiteUrl, platform, goal, discountCode })
     });
     const data = await res.json();
     console.log('[brief] response:', JSON.stringify(data).substring(0, 200));

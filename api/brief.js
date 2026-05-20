@@ -136,7 +136,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { website, productUrl, goal, platform, exampleUrl, discountCode } = req.body || {};
+  const { name, email, website, productUrl, goal, platform, exampleUrl, discountCode } = req.body || {};
   const siteUrl = website || productUrl || '';
 
   if (!siteUrl) {
@@ -145,12 +145,14 @@ export default async function handler(req, res) {
 
   let messages = [{
     role: 'user',
-    content: `Şu URL'yi ziyaret et (başka site arama, sadece bu URL): ${siteUrl}
+    content: `Website: ${siteUrl}
+Marka adı tahmini: ${siteUrl.replace(/https?:\/\//, '').split('.')[0]}
+Kullanıcı adı: ${name || ''}
 Video amacı: ${goal || 'Satış artırmak'}
 Platform: ${platform || 'TikTok/Reels'}
 ${exampleUrl ? 'Örnek video: ' + exampleUrl : ''}
 
-ÖNEMLİ: Sadece verilen URL'yi ziyaret et. Farklı bir site veya domain arama.`
+NOT: Siteye erişilemeyen durumlarda bile mutlaka script üret.`
   }];
 
   for (let turn = 0; turn < 5; turn++) {
@@ -203,6 +205,8 @@ ${exampleUrl ? 'Örnek video: ' + exampleUrl : ''}
             'Prefer': 'return=minimal'
           },
           body: JSON.stringify({
+            name: name || '',
+            email: email || '',
             website: siteUrl,
             goal: goal || '',
             platform: platform || '',
