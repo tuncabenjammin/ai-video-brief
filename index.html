@@ -124,10 +124,6 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
         <input type="hidden" id="goal" value="Satış artırmak">
       </div>
 
-      <div class="field discount-field">
-        <input type="text" id="discountCode" placeholder="İndirim kodu (opsiyonel)">
-      </div>
-
       <button class="submit-btn" id="submitBtn">Scriptimi Üret →</button>
       <div class="submit-note">★ Tamamen ücretsiz · Anında erişim</div>
       <div class="error-msg" id="errorMsg"></div>
@@ -177,7 +173,6 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
   const websiteUrl = document.getElementById('websiteUrl').value.trim();
   const platform = document.getElementById('platform').value;
   const goal = document.getElementById('goal').value;
-  const discountCode = document.getElementById('discountCode').value.trim();
 
   if (!userName) { showError('Lütfen adınızı girin.'); return; }
   if (!userEmail) { showError('Lütfen email adresinizi girin.'); return; }
@@ -189,7 +184,7 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
     const res = await fetch('/api/brief', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: userName, email: userEmail, website: websiteUrl, platform, goal, discountCode })
+      body: JSON.stringify({ name: userName, email: userEmail, website: websiteUrl, platform, goal })
     });
     const data = await res.json();
     console.log('[brief] response:', JSON.stringify(data).substring(0, 200));
