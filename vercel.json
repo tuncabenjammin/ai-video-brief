@@ -3,5 +3,8 @@
     "api/brief.js": {
       "maxDuration": 60
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/en", "destination": "/en.html" }
+  ]
 }
