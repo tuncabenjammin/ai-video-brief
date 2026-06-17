@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,8 +36,6 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
 .pills { display:flex; gap:8px; flex-wrap:wrap; }
 .pill-btn { padding:8px 16px; border:1.5px solid #e2e8f0; border-radius:20px; font-size:13px; color:#475569; background:#fff; cursor:pointer; transition:all .15s; font-weight:500; }
 .pill-btn.active { background:#E8196A; border-color:#E8196A; color:#fff; font-weight:700; }
-.discount-field input { font-size:13px; color:#94a3b8; border-color:#f1f5f9; }
-.discount-field input:focus { border-color:#7B5EA7; color:#1e293b; }
 .submit-btn { width:100%; background:#E8196A; color:#fff; border:none; border-radius:12px; padding:16px; font-size:16px; font-weight:700; cursor:pointer; margin-top:8px; transition:background .2s; }
 .submit-btn:hover { background:#c4155a; }
 .submit-note { text-align:center; font-size:12px; color:#94a3b8; margin-top:10px; }
@@ -55,52 +53,52 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
     <div class="logo">seeker<span>z</span></div>
     <div style="height:24px"></div>
     <div class="hero-tag">AI Video Script</div>
-    <h1>Markan için hazır<br><em>AI video scripti.</em></h1>
-    <p>Linkini gir. AI markanı okusun, sana özel script yazsın.</p>
+    <h1>Ready-made <em>AI video script</em><br>for your brand.</h1>
+    <p>Enter your link. AI reads your brand, writes your script.</p>
   </div>
 
   <div class="features">
     <div class="feature">
       <div class="feature-icon">🎬</div>
       <div class="feature-text">
-        <strong>Sahne sahne görsel prompt</strong>
-        <span>Veo3, Runway, Kling veya Seedance'a kopyala yapıştır</span>
+        <strong>Scene-by-scene visual prompt</strong>
+        <span>Copy and paste into Veo3, Runway, Kling or Seedance</span>
       </div>
     </div>
     <div class="feature">
       <div class="feature-icon">🎤</div>
       <div class="feature-text">
-        <strong>Voiceover metni</strong>
-        <span>ElevenLabs'e yapıştır, seslendirsin</span>
+        <strong>Voiceover text</strong>
+        <span>Paste into ElevenLabs and let it narrate</span>
       </div>
     </div>
     <div class="feature">
       <div class="feature-icon">⚡</div>
       <div class="feature-text">
-        <strong>Hook + alternatif hook</strong>
-        <span>İlk 3 saniye — izleyiciyi durduran, kaydırmayı durduran</span>
+        <strong>Hook + alternative hook</strong>
+        <span>First 3 seconds — stops the scroll, grabs attention</span>
       </div>
     </div>
   </div>
 
   <div class="form-card">
-    <div class="form-title">Bir link. Bir dakika.</div>
-    <div class="form-sub">AI markanı analiz eder, sana özel script yazar.</div>
+    <div class="form-title">One link. One minute.</div>
+    <div class="form-sub">AI analyzes your brand and writes a custom script.</div>
 
     <div id="briefForm">
       <div class="field">
-        <label>Adın</label>
-        <input type="text" id="userName" placeholder="Adın Soyadın" required>
+        <label>Your Name</label>
+        <input type="text" id="userName" placeholder="First Last" required>
       </div>
 
       <div class="field">
-        <label>Email adresin</label>
-        <input type="email" id="userEmail" placeholder="ornek@email.com" required>
+        <label>Your Email</label>
+        <input type="email" id="userEmail" placeholder="you@example.com" required>
       </div>
 
       <div class="field">
-        <label>Website veya ürün sayfası linki</label>
-        <input type="url" id="websiteUrl" placeholder="https://markaadi.com/urun" required>
+        <label>Website or product page link</label>
+        <input type="url" id="websiteUrl" placeholder="https://yourbrand.com/product" required>
       </div>
 
       <div class="field">
@@ -108,30 +106,30 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
         <div class="pills" id="platformPills">
           <button type="button" class="pill-btn active" data-value="TikTok/Reels">TikTok / Reels</button>
           <button type="button" class="pill-btn" data-value="YouTube Shorts">YouTube Shorts</button>
-          <button type="button" class="pill-btn" data-value="Meta Reklam">Meta Reklam</button>
+          <button type="button" class="pill-btn" data-value="Meta Ad">Meta Ad</button>
         </div>
         <input type="hidden" id="platform" value="TikTok/Reels">
       </div>
 
       <div class="field">
-        <label>Video amacı</label>
+        <label>Goal</label>
         <div class="pills" id="goalPills">
-          <button type="button" class="pill-btn active" data-value="Satış artırmak">Satış</button>
-          <button type="button" class="pill-btn" data-value="Marka bilinirliği">Bilinirlik</button>
-          <button type="button" class="pill-btn" data-value="Reklam">Reklam</button>
-          <button type="button" class="pill-btn" data-value="Sosyal kanıt">Sosyal kanıt</button>
+          <button type="button" class="pill-btn active" data-value="Increase Sales">Increase Sales</button>
+          <button type="button" class="pill-btn" data-value="Brand Awareness">Brand Awareness</button>
+          <button type="button" class="pill-btn" data-value="Ad">Ad</button>
+          <button type="button" class="pill-btn" data-value="Social Proof">Social Proof</button>
         </div>
-        <input type="hidden" id="goal" value="Satış artırmak">
+        <input type="hidden" id="goal" value="Increase Sales">
       </div>
 
-      <button class="submit-btn" id="submitBtn">Scriptimi Üret →</button>
-      <div class="submit-note">★ Tamamen ücretsiz · Anında erişim</div>
+      <button class="submit-btn" id="submitBtn">Generate My Script →</button>
+      <div class="submit-note">★ Completely free · Instant access</div>
       <div class="error-msg" id="errorMsg"></div>
     </div>
 
     <div class="loading" id="loadingState">
       <div class="spinner"></div>
-      <p>Markanız analiz ediliyor ve scriptiniz hazırlanıyor...<br>(30-60 saniye)</p>
+      <p>Analyzing your brand and generating your script...<br>(30-60 seconds)</p>
     </div>
   </div>
 
@@ -174,9 +172,9 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
   const platform = document.getElementById('platform').value;
   const goal = document.getElementById('goal').value;
 
-  if (!userName) { showError('Lütfen adınızı girin.'); return; }
-  if (!userEmail) { showError('Lütfen email adresinizi girin.'); return; }
-  if (!websiteUrl) { showError('Lütfen bir link girin.'); return; }
+  if (!userName) { showError('Please enter your name.'); return; }
+  if (!userEmail) { showError('Please enter your email address.'); return; }
+  if (!websiteUrl) { showError('Please enter a link.'); return; }
 
   showLoading();
 
@@ -184,24 +182,24 @@ document.getElementById('submitBtn').addEventListener('click', async () => {
     const res = await fetch('/api/brief', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: userName, email: userEmail, website: websiteUrl, platform, goal })
+      body: JSON.stringify({ name: userName, email: userEmail, website: websiteUrl, platform, goal, lang: 'en' })
     });
     const data = await res.json();
     console.log('[brief] response:', JSON.stringify(data).substring(0, 200));
 
     if (!data.scripts || data.scripts.length === 0) {
       showForm();
-      showError('Script üretilemedi, lütfen tekrar deneyin.');
+      showError('Could not generate script, please try again.');
       return;
     }
 
     sessionStorage.setItem('briefResult', JSON.stringify(data));
-    sessionStorage.setItem('briefLang', 'tr');
+    sessionStorage.setItem('briefLang', 'en');
     window.location.href = '/result.html';
   } catch(e) {
     console.error(e);
     showForm();
-    showError('Bir hata oluştu: ' + e.message);
+    showError('An error occurred: ' + e.message);
   }
 });
 </script>

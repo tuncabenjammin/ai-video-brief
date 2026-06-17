@@ -53,30 +53,56 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 <div class="wrap">
   <div class="header">
     <div class="logo">seeker<span>z</span></div>
-    <h1>Scriptin Hazır 🎬</h1>
+    <h1 id="pageTitle">Scriptin Hazır 🎬</h1>
   </div>
   <div id="scriptContainer"></div>
   <div class="oto">
-    <p style="font-size:11px;opacity:.6;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Bir sonraki adım</p>
-    <h2>Scriptin hazır. Şimdi kim üretecek?</h2>
-    <p>Bu scripti bugün bir AI video üreticisine ver. Seekerz'daki üreticiler bu formatı biliyor.</p>
+    <p id="otoNextStep" style="font-size:11px;opacity:.6;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Bir sonraki adım</p>
+    <h2 id="otoTitle">Scriptin hazır. Şimdi kim üretecek?</h2>
+    <p id="otoBody">Bu scripti bugün bir AI video üreticisine ver. Seekerz'daki üreticiler bu formatı biliyor.</p>
     <div class="oto-features">
       <ul>
-        <li>AI video üreticisi topluluğuna erişim</li>
-        <li>İstediğin zaman ilan aç, teklif al</li>
-        <li>Üreticilerle birebir çalış</li>
+        <li id="otoF1">AI video üreticisi topluluğuna erişim</li>
+        <li id="otoF2">İstediğin zaman ilan aç, teklif al</li>
+        <li id="otoF3">Üreticilerle birebir çalış</li>
       </ul>
     </div>
-    <p class="disclaimer">⚠️ Bu ödeme yalnızca platform erişimi içindir. Üreticilerin hazırladığı videolar için marka tarafından belirlenen bütçe üzerinden ayrıca ödeme yapılır.</p>
-    <a href="https://seekerz.vercel.app/signup" class="btn-oto">Seekerz'a Katıl — 2.200 TL/ay →</a>
-    <span class="skip-link" onclick="window.print()">Hayır teşekkürler, scripti kaydet (PDF)</span>
+    <p class="disclaimer" id="otoDisclaimer">⚠️ Bu ödeme yalnızca platform erişimi içindir. Üreticilerin hazırladığı videolar için marka tarafından belirlenen bütçe üzerinden ayrıca ödeme yapılır.</p>
+    <a href="https://seekerz.vercel.app/signup" class="btn-oto" id="otoCta">Seekerz'a Katıl — 2.200 TL/ay →</a>
+    <span class="skip-link" id="skipLink" onclick="window.print()">Hayır teşekkürler, scripti kaydet (PDF)</span>
   </div>
 </div>
 <script>
+const lang = sessionStorage.getItem('briefLang') || 'tr';
+const i18n = {
+  copied:      lang === 'en' ? '✓ Copied'                          : '✓ Kopyalandı',
+  copy:        lang === 'en' ? 'Copy'                              : 'Kopyala',
+  pageTitle:   lang === 'en' ? 'Your Script is Ready 🎬'           : 'Scriptin Hazır 🎬',
+  hook:        lang === 'en' ? '🎯 HOOK'                           : '🎯 Hook',
+  hookAlt:     lang === 'en' ? 'Alternative:'                      : 'Alternatif:',
+  scenes:      lang === 'en' ? '🎬 SCENES'                         : '🎬 Sahneler',
+  scene:       lang === 'en' ? 'SCENE'                             : 'SAHNE',
+  visualLabel: lang === 'en' ? '🎬 Visual Prompt (paste to Veo3 / Runway / Kling)' : '🎬 Görsel Prompt (Veo3 / Runway / Kling\'e yapıştır)',
+  voiceLabel:  lang === 'en' ? '🎤 Voiceover'                      : '🎤 Voiceover',
+  cta:         lang === 'en' ? '📣 CTA'                            : '📣 CTA',
+  ctaAlt:      lang === 'en' ? 'Alternative:'                      : 'Alternatif:',
+  voiceFull:   lang === 'en' ? '🎙️ FULL VOICEOVER — PASTE TO ELEVENLABS' : '🎙️ Tam Voiceover — ElevenLabs\'e Yapıştır',
+  copyAll:     lang === 'en' ? '📋 Copy All Voiceover'             : '📋 Tüm Voiceover\'ı Kopyala',
+  nextStep:    lang === 'en' ? 'Next Step'                         : 'Bir sonraki adım',
+  otoTitle:    lang === 'en' ? 'Your Script is Ready. Who Will Produce This Video?' : 'Scriptin hazır. Şimdi kim üretecek?',
+  otoBody:     lang === 'en' ? 'Hand this script to an AI video creator today. Creators on Seekerz know this format.' : 'Bu scripti bugün bir AI video üreticisine ver. Seekerz\'daki üreticiler bu formatı biliyor.',
+  otoF1:       lang === 'en' ? 'Access AI video creator community'  : 'AI video üreticisi topluluğuna erişim',
+  otoF2:       lang === 'en' ? 'Post a listing anytime, receive offers' : 'İstediğin zaman ilan aç, teklif al',
+  otoF3:       lang === 'en' ? 'Work directly with creators'        : 'Üreticilerle birebir çalış',
+  disclaimer:  lang === 'en' ? '⚠️ This payment covers platform access only. Video production is billed separately per brand budget.' : '⚠️ Bu ödeme yalnızca platform erişimi içindir. Üreticilerin hazırladığı videolar için marka tarafından belirlenen bütçe üzerinden ayrıca ödeme yapılır.',
+  otoCta:      lang === 'en' ? 'Open Your First Listing for Free →' : 'Seekerz\'a Katıl — 2.200 TL/ay →',
+  skip:        lang === 'en' ? 'No thanks, save my script (PDF)'   : 'Hayır teşekkürler, scripti kaydet (PDF)',
+};
+
 function copyText(text, btn) {
   navigator.clipboard.writeText(text).then(() => {
     const orig = btn.textContent;
-    btn.textContent = '✓ Kopyalandı';
+    btn.textContent = i18n.copied;
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
   });
@@ -101,34 +127,34 @@ function renderScript(data) {
       <span class="pill pill-navy">${esc(data.duration || '20-30sn')}</span>
       ${data.framework ? `<span class="pill">${esc(data.framework)}</span>` : ''}
     </div>
-    <h2 style="font-size:17px;font-weight:700;color:#1B2B5E;margin-bottom:16px">${esc(data.title || 'Video Scripti')}</h2>
+    <h2 style="font-size:17px;font-weight:700;color:#1B2B5E;margin-bottom:16px">${esc(data.title || 'Video Script')}</h2>
 
-    <div class="section-title">🎯 Hook</div>
+    <div class="section-title">${i18n.hook}</div>
     <div class="hook-box">
       <p>
         ${esc(data.hookMain || '')}
-        <button class="copy-btn" data-copy="${esc(data.hookMain || '')}">Kopyala</button>
+        <button class="copy-btn" data-copy="${esc(data.hookMain || '')}">${i18n.copy}</button>
       </p>
       <small>
-        Alternatif: ${esc(data.hookAlt || '')}
-        <button class="copy-btn" data-copy="${esc(data.hookAlt || '')}">Kopyala</button>
+        ${i18n.hookAlt} ${esc(data.hookAlt || '')}
+        <button class="copy-btn" data-copy="${esc(data.hookAlt || '')}">${i18n.copy}</button>
       </small>
     </div>
 
-    <div class="section-title">🎬 Sahneler</div>
+    <div class="section-title">${i18n.scenes}</div>
   `;
 
   scenes.forEach((scene, i) => {
     html += `
       <div class="scene">
-        <div class="scene-num">SAHNE ${i + 1} · ${esc(scene.duration || '3s')}</div>
+        <div class="scene-num">${i18n.scene} ${i + 1} · ${esc(scene.duration || '3s')}</div>
         <div class="scene-row">
-          <div class="scene-label">🎬 Görsel Prompt (Veo3 / Runway / Kling'e yapıştır)</div>
+          <div class="scene-label">${i18n.visualLabel}</div>
           <div class="scene-visual">${esc(scene.visual || '')}</div>
-          <button class="copy-btn" style="float:none;margin-top:6px" data-copy="${esc(scene.visual || '')}">Kopyala</button>
+          <button class="copy-btn" style="float:none;margin-top:6px" data-copy="${esc(scene.visual || '')}">${i18n.copy}</button>
         </div>
         <div class="scene-row" style="margin-top:8px">
-          <div class="scene-label">🎤 Voiceover</div>
+          <div class="scene-label">${i18n.voiceLabel}</div>
           <div class="scene-text">${esc(scene.voice || '')}</div>
         </div>
       </div>
@@ -136,22 +162,22 @@ function renderScript(data) {
   });
 
   html += `
-    <div class="section-title">📣 CTA</div>
+    <div class="section-title">${i18n.cta}</div>
     <div class="cta-box">
       <p>
         ${esc(data.ctaMain || '')}
-        <button class="copy-btn" data-copy="${esc(data.ctaMain || '')}">Kopyala</button>
+        <button class="copy-btn" data-copy="${esc(data.ctaMain || '')}">${i18n.copy}</button>
       </p>
       <small style="color:#E8196A">
-        Alternatif: ${esc(data.ctaAlt || '')}
-        <button class="copy-btn" data-copy="${esc(data.ctaAlt || '')}">Kopyala</button>
+        ${i18n.ctaAlt} ${esc(data.ctaAlt || '')}
+        <button class="copy-btn" data-copy="${esc(data.ctaAlt || '')}">${i18n.copy}</button>
       </small>
     </div>
 
-    <div class="section-title">🎙️ Tam Voiceover — ElevenLabs'e Yapıştır</div>
+    <div class="section-title">${i18n.voiceFull}</div>
     <div class="voice-box">
       <div class="voice-text">${esc(data.fullVoice || '')}</div>
-      <button class="copy-full-btn" data-copy="${esc(data.fullVoice || '')}">📋 Tüm Voiceover'ı Kopyala</button>
+      <button class="copy-full-btn" data-copy="${esc(data.fullVoice || '')}">${i18n.copyAll}</button>
     </div>
   `;
 
@@ -164,6 +190,18 @@ function renderScript(data) {
 
   container.appendChild(card);
 }
+
+// Apply i18n to static elements
+document.getElementById('pageTitle').textContent = i18n.pageTitle;
+document.getElementById('otoNextStep').textContent = i18n.nextStep;
+document.getElementById('otoTitle').textContent = i18n.otoTitle;
+document.getElementById('otoBody').textContent = i18n.otoBody;
+document.getElementById('otoF1').textContent = i18n.otoF1;
+document.getElementById('otoF2').textContent = i18n.otoF2;
+document.getElementById('otoF3').textContent = i18n.otoF3;
+document.getElementById('otoDisclaimer').textContent = i18n.disclaimer;
+document.getElementById('otoCta').textContent = i18n.otoCta;
+document.getElementById('skipLink').textContent = i18n.skip;
 
 try {
   let stored = sessionStorage.getItem('briefResult');

@@ -1,4 +1,6 @@
-const SYSTEM_PROMPT = `Sen uzman bir AI video script yazarısın.
+const SYSTEM_PROMPT = `Eğer kullanıcı dili 'en' ise, tüm çıktıları (title, hookMain, hookAlt, voice, ctaMain, ctaAlt, fullVoice) İngilizce yaz. Görsel promptlar zaten İngilizce. Sadece voiceover ve hook metinleri dil seçimine göre değişir.
+
+Sen uzman bir AI video script yazarısın.
 
 ADIM 1 — WEB SİTESİNİ OKU:
 Verilen URL'yi web_search ile aramadan direkt olarak tam URL'yi kullanarak ziyaret et.
@@ -136,7 +138,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { name, email, website, productUrl, goal, platform, exampleUrl, discountCode } = req.body || {};
+  const { name, email, website, productUrl, goal, platform, exampleUrl, lang } = req.body || {};
   const siteUrl = website || productUrl || '';
 
   if (!siteUrl) {
@@ -150,6 +152,7 @@ Marka adı tahmini: ${siteUrl.replace(/https?:\/\//, '').split('.')[0]}
 Kullanıcı adı: ${name || ''}
 Video amacı: ${goal || 'Satış artırmak'}
 Platform: ${platform || 'TikTok/Reels'}
+Language: ${lang || 'tr'}
 ${exampleUrl ? 'Örnek video: ' + exampleUrl : ''}
 
 NOT: Siteye erişilemeyen durumlarda bile mutlaka script üret.`
